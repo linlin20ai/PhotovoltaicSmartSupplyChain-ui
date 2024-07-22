@@ -4,6 +4,10 @@ import {ElMessage} from "element-plus";
 const authItemName = "authorize"
 
 const accessHeader = () => {
+    const token = takeAccessToken();
+    if (!token) {
+        throw new Error("未能获取到 JWT 令牌");
+    }
     return {
         'Authorization': `Bearer ${takeAccessToken()}`
     }
@@ -57,13 +61,13 @@ function internalPost(url, data, headers, success, failure, error = defaultError
     }).catch(err => error(err))
 }
 
-function internalGet(url, headers, success, failure, error = defaultError){
-    axios.get(url, { headers: headers }).then(({data}) => {
-        if(data.code === 200)
-            success(data.data)
+function internalGet(url, headers, success, failure, error = defaultError) {
+    axios.get(url, { headers: headers }).then(({ data }) => {
+        if (data.code === 200)
+            success(data.data);
         else
-            failure(data.message, data.code, url)
-    }).catch(err => error(err))
+            failure(data.message, data.code, url);
+    }).catch(err => error(err));
 }
 
 function login(username, password, remember, success, failure = defaultFailure){
@@ -73,8 +77,9 @@ function login(username, password, remember, success, failure = defaultFailure){
     }, {
         'Content-Type': 'application/x-www-form-urlencoded'
     }, (data) => {
+        //console.log(data)
         storeAccessToken(remember, data.token, data.expire)
-        ElMessage.success(`登录成功，欢迎 ${data.username} 来到我们的系统`)
+        ElMessage.success(`登录成功，欢迎 ${data.name} 来到我们的系统`)
         success(data)
     }, failure)
 }
