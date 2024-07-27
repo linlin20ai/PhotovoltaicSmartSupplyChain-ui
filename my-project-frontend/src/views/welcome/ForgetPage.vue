@@ -41,7 +41,7 @@
                     </el-form>
                 </div>
                 <div style="margin-top: 70px">
-                    <el-button @click="startReset()" style="width: 270px;" type="danger" plain>开始重置密码</el-button>
+                    <el-button @click="confirmReset()" style="width: 270px;" type="danger" plain>开始重置密码</el-button>
                 </div>
             </div>
         </transition>
@@ -80,7 +80,7 @@
 <script setup>
 import {reactive, ref} from "vue";
 import {EditPen, Lock, Message} from "@element-plus/icons-vue";
-import {post} from "@/net";
+import {get, post} from "@/net";
 import {ElMessage} from "element-plus";
 import router from "@/router";
 
@@ -113,7 +113,7 @@ const rules = {
     ],
     password: [
         { required: true, message: '请输入密码', trigger: 'blur' },
-        { min: 6, max: 16, message: '密码的长度必须在6-16个字符之间', trigger: ['blur', 'change'] }
+        { min: 6, max: 16, message: '密码的长度必须在6-16个字符之间', trigger: ['blur'] }
     ],
     password_repeat: [
         { validator: validatePassword, trigger: ['blur', 'change'] },
@@ -131,28 +131,27 @@ const onValidate = (prop, isValid) => {
 
 const validateEmail = () => {
     coldTime.value = 60
-    post('/api/auth/valid-reset-email', {
-        email: form.email
-    }, (message) => {
-        ElMessage.success(message)
-        setInterval(() => coldTime.value--, 1000)
+    get(`/api/auth/ask-code?email=${form.email}&type=reset`, () => {
+        ElMessage.success(`验证码已发送到邮箱: ${form.email}，请注意查收`)
+        const handle = setInterval(() => {
+          coldTime.value--
+          if(coldTime.value === 0) {
+            clearInterval(handle)
+          }
+        }, 1000)
     }, (message) => {
         ElMessage.warning(message)
         coldTime.value = 0
     })
 }
 
-const startReset = () => {
+const confirmReset = () => {
     formRef.value.validate((isValid) => {
         if(isValid) {
-            post('/api/auth/start-reset', {
+            post('/api/auth/reset-confirm', {
                 email: form.email,
                 code: form.code
-            }, () => {
-                active.value++
-            })
-        } else {
-            ElMessage.warning('请填写电子邮件地址和验证码')
+            }, () => active.value++)
         }
     })
 }
@@ -160,18 +159,17 @@ const startReset = () => {
 const doReset = () => {
     formRef.value.validate((isValid) => {
         if(isValid) {
-            post('/api/auth/do-reset', {
+            post('/api/auth/reset-password', {
+                email: form.email,
+                code: form.code,
                 password: form.password
-            }, (message) => {
-                ElMessage.success(message)
+            }, () => {
+                ElMessage.success('密码重置成功，请重新登录')
                 router.push('/')
             })
-        } else {
-            ElMessage.warning('请填写新的密码')
         }
     })
 }
-
 </script>
 
 <style scoped>

@@ -1,27 +1,27 @@
 <template>
     <div style="text-align: center;margin: 0 20px">
         <div style="margin-top: 100px">
-            <div style="font-size: 25px;font-weight: bold">注册新用户</div>
-            <div style="font-size: 14px;color: grey">欢迎注册我们的学习平台，请在下方填写相关信息</div>
+            <div style="font-size: 25px;font-weight: bold">新用户注册</div>
+            <div style="font-size: 14px;color: grey">欢迎注册光伏智慧管理系统账号，请在下方填写相关信息</div>
         </div>
         <div style="margin-top: 50px">
             <el-form :model="form" :rules="rules" @validate="onValidate" ref="formRef">
                 <el-form-item prop="username">
-                    <el-input v-model="form.username" :maxlength="8" type="text" placeholder="用户名">
+                    <el-input v-model="form.username" :maxlength="10" type="text" placeholder="用户名">
                         <template #prefix>
                             <el-icon><User /></el-icon>
                         </template>
                     </el-input>
                 </el-form-item>
                 <el-form-item prop="password">
-                    <el-input v-model="form.password" :maxlength="16" type="password" placeholder="密码">
+                    <el-input v-model="form.password" :maxlength="20" type="password" placeholder="密码">
                         <template #prefix>
                             <el-icon><Lock /></el-icon>
                         </template>
                     </el-input>
                 </el-form-item>
                 <el-form-item prop="password_repeat">
-                    <el-input v-model="form.password_repeat" :maxlength="16" type="password" placeholder="重复密码">
+                    <el-input v-model="form.password_repeat" :maxlength="20" type="password" placeholder="重复密码">
                         <template #prefix>
                             <el-icon><Lock /></el-icon>
                         </template>
@@ -68,7 +68,7 @@ import {EditPen, Lock, Message, User} from "@element-plus/icons-vue";
 import router from "@/router";
 import {reactive, ref} from "vue";
 import {ElMessage} from "element-plus";
-import {post} from "@/net";
+import {get, post} from "@/net";
 
 const form = reactive({
     username: '',
@@ -136,8 +136,8 @@ const register = () => {
                 password: form.password,
                 email: form.email,
                 code: form.code
-            }, (message) => {
-                ElMessage.success(message)
+            }, () => {
+                ElMessage.success('注册成功，欢迎加入我们')
                 router.push("/")
             })
         } else {
@@ -148,12 +148,15 @@ const register = () => {
 
 const validateEmail = () => {
     coldTime.value = 60
-    post('/api/auth/valid-register-email', {
-        email: form.email
-    }, (message) => {
-        ElMessage.success(message)
-        setInterval(() => coldTime.value--, 1000)
-    }, (message) => {
+    get(`/api/auth/ask-code?email=${form.email}&type=register`, () => {
+        ElMessage.success(`验证码已发送到邮箱: ${form.email}，请注意查收`)
+        const handle = setInterval(() => {
+          coldTime.value--
+          if(coldTime.value === 0) {
+            clearInterval(handle)
+          }
+        }, 1000)
+    }, undefined, (message) => {
         ElMessage.warning(message)
         coldTime.value = 0
     })

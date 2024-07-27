@@ -1,5 +1,5 @@
 {
-  "name": "study-project-frontend",
+  "name": "my-project-frontend",
   "version": "0.0.0",
   "private": true,
   "scripts": {
@@ -9,17 +9,20 @@
   },
   "dependencies": {
     "@element-plus/icons-vue": "^2.1.0",
-    "axios": "^1.3.5",
-    "element-plus": "^2.3.3",
-    "pinia": "^2.0.32",
-    "vue": "^3.2.47",
-    "vue-axios": "^3.5.2",
-    "vue-router": "^4.4.0"
+    "@vueuse/core": "^10.3.0",
+    "axios": "^1.4.0",
+    "echarts": "^5.5.1",
+    "echarts-gl": "^2.0.9",
+    "element-plus": "^2.7.7",
+    "jquery": "^3.7.1",
+    "vue": "^3.3.4",
+    "vue-echarts": "^6.7.3",
+    "vue-router": "^4.2.4"
   },
   "devDependencies": {
-    "@vitejs/plugin-vue": "^4.0.0",
+    "@vitejs/plugin-vue": "^4.2.3",
     "unplugin-auto-import": "^0.15.2",
     "unplugin-vue-components": "^0.24.1",
-    "vite": "^4.1.4"
+    "vite": "^4.4.6"
   }
 }
