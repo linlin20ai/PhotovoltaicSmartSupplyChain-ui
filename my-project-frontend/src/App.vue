@@ -1,29 +1,24 @@
 <script setup>
-import { useDark, useToggle } from '@vueuse/core'
+import {get} from "@/net";
+import {useStore} from "@/stores";
+import router from "@/router";
 
-useDark({
-  selector: 'html',
-  attribute: 'class',
-  valueDark: 'dark',
-  valueLight: 'light'
-})
+const store = useStore()
 
-useDark({
-  onChanged(dark) { useToggle(dark) }
-})
-
+if(store.auth.user == null) {
+    get('/api/user/me', (message) => {
+        store.auth.user = message
+        router.push('/index')
+    }, () => {
+        store.auth.user = null
+    })
+}
 </script>
 
 <template>
-  <header>
-    <div class="wrapper">
-      <router-view/>
-    </div>
-  </header>
+  <router-view/>
 </template>
 
 <style scoped>
-header {
-  line-height: 1.5;
-}
+
 </style>
